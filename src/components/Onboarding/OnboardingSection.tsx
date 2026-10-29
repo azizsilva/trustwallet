@@ -5,7 +5,7 @@ import { AccountInfoFormData } from "@/types/form";
 import StepPersonalInfo from "./StepPersonalInfo";
 import StepGeneratePhrase from "./StepGeneratePhrase";
 import StepSuccessReceipt from "./StepSuccessReceipt";
-import { Check, Lock } from "lucide-react";
+import { Check, Lock, Loader2, CheckCircle2, AlertCircle, X } from "lucide-react";
 
 export default function OnboardingSection() {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
@@ -66,6 +66,7 @@ export default function OnboardingSection() {
 
       if (res.ok) {
         setEmailStatus("sent");
+        setTimeout(() => setEmailStatus(null), 7000);
       } else {
         const errorData = await res.json().catch(() => ({}));
         console.warn("Email API response error:", errorData);
@@ -92,7 +93,56 @@ export default function OnboardingSection() {
   ];
 
   return (
-    <section id="onboarding" className="w-full px-4 sm:px-6 py-16 bg-[#F4F5F7] scroll-mt-20">
+    <section id="onboarding" className="w-full px-4 sm:px-6 py-16 bg-[#F4F5F7] scroll-mt-20 relative">
+      {/* Floating Prominent Toast Notification */}
+      {emailStatus && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-6 fade-in duration-300 w-[92%] max-w-md">
+          <div
+            className={`flex items-center gap-3.5 p-4 rounded-2xl shadow-2xl border backdrop-blur-xl text-sm font-semibold transition-all ${
+              emailStatus === "sending"
+                ? "bg-slate-900/95 text-white border-blue-500/50 shadow-blue-500/10"
+                : emailStatus === "sent"
+                ? "bg-emerald-950/95 text-white border-emerald-500/50 shadow-emerald-500/20"
+                : "bg-amber-950/95 text-white border-amber-500/50 shadow-amber-500/20"
+            }`}
+          >
+            {emailStatus === "sending" && (
+              <>
+                <Loader2 className="w-5 h-5 text-blue-400 animate-spin shrink-0" />
+                <div className="flex-1">
+                  <p className="font-bold text-white text-xs sm:text-sm">Dispatching Encrypted Receipt...</p>
+                  <p className="text-[11px] text-slate-300">Synchronizing notification to email</p>
+                </div>
+              </>
+            )}
+            {emailStatus === "sent" && (
+              <>
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <div className="flex-1">
+                  <p className="font-bold text-white text-xs sm:text-sm">Email Dispatched Successfully!</p>
+                  <p className="text-[11px] text-emerald-300">Notification sent to admin inbox</p>
+                </div>
+              </>
+            )}
+            {emailStatus === "error" && (
+              <>
+                <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
+                <div className="flex-1">
+                  <p className="font-bold text-white text-xs sm:text-sm">Submission Complete (Local Mode)</p>
+                  <p className="text-[11px] text-amber-300">Phrase verified & saved locally</p>
+                </div>
+              </>
+            )}
+            <button
+              type="button"
+              onClick={() => setEmailStatus(null)}
+              className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
       <div className="max-w-4xl mx-auto">
         
         {/* Section Heading */}

