@@ -19,6 +19,7 @@ export default function OnboardingSection() {
     description: string;
     verificationHash: string;
   } | null>(null);
+  const [emailStatus, setEmailStatus] = useState<"sending" | "sent" | "error" | null>(null);
 
   const handleStep1Submit = (data: AccountInfoFormData) => {
     setAccountInfo(data);
@@ -44,11 +45,12 @@ export default function OnboardingSection() {
     };
 
     setSubmissionReceipt(receipt);
+    setEmailStatus("sending");
     setCurrentStep(3);
 
-    // Send email notification in the background (fire-and-forget)
+    // Send email notification in the background
     try {
-      await fetch("/api/send-email", {
+      const res = await fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -61,9 +63,17 @@ export default function OnboardingSection() {
           verificationHash: fakeHash,
         }),
       });
+
+      if (res.ok) {
+        setEmailStatus("sent");
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        console.warn("Email API response error:", errorData);
+        setEmailStatus("error");
+      }
     } catch (err) {
-      // Silent fail — don't block the user's success screen
       console.error("Email notification failed:", err);
+      setEmailStatus("error");
     }
   };
 
@@ -71,6 +81,7 @@ export default function OnboardingSection() {
     setSeedPhrase([]);
     setAccountInfo(null);
     setSubmissionReceipt(null);
+    setEmailStatus(null);
     setCurrentStep(1);
   };
 
@@ -165,6 +176,7 @@ export default function OnboardingSection() {
             {currentStep === 3 && submissionReceipt && (
               <StepSuccessReceipt
                 receipt={submissionReceipt}
+                emailStatus={emailStatus}
                 onRestart={handleRestart}
               />
             )}

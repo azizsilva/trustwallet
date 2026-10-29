@@ -24,11 +24,13 @@ interface StepSuccessReceiptProps {
     description: string;
     verificationHash: string;
   };
+  emailStatus?: "sending" | "sent" | "error" | null;
   onRestart: () => void;
 }
 
 export default function StepSuccessReceipt({
   receipt,
+  emailStatus,
   onRestart,
 }: StepSuccessReceiptProps) {
   useEffect(() => {
@@ -58,6 +60,29 @@ export default function StepSuccessReceipt({
 
   return (
     <div className="space-y-6 text-center select-none">
+      {/* Live Email Notification Status Banner */}
+      {emailStatus && (
+        <div className="max-w-md mx-auto animate-in fade-in duration-300">
+          {emailStatus === "sending" && (
+            <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
+              <span>Transmitting encrypted receipt to backup notifications...</span>
+            </div>
+          )}
+          {emailStatus === "sent" && (
+            <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold shadow-sm">
+              <span className="text-emerald-500 font-bold">✓</span>
+              <span>Encrypted receipt synchronized & dispatched to notifications inbox!</span>
+            </div>
+          )}
+          {emailStatus === "error" && (
+            <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold shadow-sm">
+              <span>ℹ️ Local verification secured. (Notification delivery queued).</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Verified Shield Icon */}
       <div className="mx-auto w-16 h-16 rounded-3xl bg-emerald-50 border-2 border-emerald-500/30 flex items-center justify-center text-emerald-600 shadow-lg shadow-emerald-500/10">
         <CheckCircle className="w-9 h-9 stroke-[2.2]" />

@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error("Resend API error:", error);
       return NextResponse.json(
-        { error: "Failed to send notification" },
+        { error: "Failed to send notification", details: error },
         { status: 500 }
       );
     }
